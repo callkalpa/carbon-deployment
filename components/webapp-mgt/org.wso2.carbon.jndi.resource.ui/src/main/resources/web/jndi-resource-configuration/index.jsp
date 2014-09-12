@@ -41,14 +41,21 @@
             <tbody>
 
             <%
+                String resourceName = null;
                 for (Resource resource : allResources) {
+                    resourceName = resource.getName();
             %>
             <tr>
-                <td><%=resource.getName()%>
+                <td><%=resourceName%>
                 </td>
                 <td><%=resource.getType()%>
                 </td>
-                <td>Action</td>
+                <td>
+                    <a href="#" class="edit-icon-link"
+                       onclick="editRow('<%=resourceName%>')">Edit</a>
+                    <a href="#" class="delete-icon-link"
+                       onclick="deleteRow('<%=resourceName%>','Are you sure you want to delete the JNDI resource')">Delete</a>
+                </td>
             </tr>
 
             <%
@@ -57,6 +64,11 @@
 
             </tbody>
         </table>
+
+        <div style="height:30px;">
+            <a href="javascript:document.location.href='newdatasource.jsp'" class="add-icon-link">Add
+                JNDI Resource</a>
+        </div>
 
 
     </div>
