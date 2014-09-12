@@ -37,6 +37,7 @@
     <modules>
         <module>org.wso2.carbon.webapp.mgt.stub</module>
         <module>org.wso2.carbon.bam.webapp.stat.publisher.stub</module>
+        <module>org.wso2.carbon.jndi.resource.stub</module>
     </modules>
 
     <dependencies>

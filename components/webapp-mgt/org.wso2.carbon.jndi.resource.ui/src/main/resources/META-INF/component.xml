@@ -1,0 +1,16 @@
+<component xmlns="http://products.wso2.org/carbon">
+    <menus>
+        <menu>
+            <id>jndi_resource_menu</id>
+            <i18n-key>jndi.resource.menu</i18n-key>
+            <i18n-bundle>org.wso2.carbon.jndi.resource.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>configure_menu</parent-menu>
+            <link>../jndi-resource-configuration/index.jsp</link>
+            <region>region1</region>
+            <order>16</order>
+            <style-class>manage</style-class>
+            <icon>../jndi-resource-configuration/images/jndi-resource.gif</icon>
+            <require-permission>/permission/protected/manage</require-permission>
+        </menu>
+    </menus>
+</component>
