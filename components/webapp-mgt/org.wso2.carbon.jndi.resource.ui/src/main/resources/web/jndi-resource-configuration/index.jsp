@@ -8,6 +8,8 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
+
+<script type="text/javascript" src="jndi-resource.js"></script>
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
@@ -66,7 +68,7 @@
         </table>
 
         <div style="height:30px;">
-            <a href="javascript:document.location.href='newdatasource.jsp'" class="add-icon-link">Add
+            <a href="javascript:document.location.href='newjndiresource.jsp'" class="add-icon-link">Add
                 JNDI Resource</a>
         </div>
 

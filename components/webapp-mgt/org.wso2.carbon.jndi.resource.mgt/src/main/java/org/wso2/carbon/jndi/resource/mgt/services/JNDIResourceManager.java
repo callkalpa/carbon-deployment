@@ -40,19 +40,18 @@ public class JNDIResourceManager {
         }
     }
 
-    private void removeResourceFromRegistry(Resource resource) {
+    private void removeResourceFromRegistry(String name) {
         try {
-            org.wso2.carbon.registry.api.Resource resource1 = this.getRegistry().newResource();
-            resource1.setContentStream(JNDIResourceUtils.convertResourceToInputStream(resource));
-            this.getRegistry().delete(JMS_RESOURCE_REGISTRY_BASE_PATH + "/" + resource.getName().replace("/", "."));
+            this.getRegistry().delete(JMS_RESOURCE_REGISTRY_BASE_PATH + "/" + name.replace("/", "."));
         } catch (RegistryException e) {
             e.printStackTrace();
         }
     }
 
     private String[] getResourcePaths() {
+        org.wso2.carbon.registry.api.Resource resources;
         try {
-            org.wso2.carbon.registry.api.Resource resources = this.getRegistry().get(JMS_RESOURCE_REGISTRY_BASE_PATH);
+            resources = this.getRegistry().get(JMS_RESOURCE_REGISTRY_BASE_PATH);
             return (String[]) resources.getContent();
         } catch (RegistryException e) {
             e.printStackTrace();
@@ -94,6 +93,26 @@ public class JNDIResourceManager {
         return resources;
     }
 
+    public Resource getResource(String name) {
+        org.wso2.carbon.registry.api.Resource res = null;
+        Resource resource = null;
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = null;
+        Document document = null;
+        try {
+            res = this.getRegistry().get(JMS_RESOURCE_REGISTRY_BASE_PATH + name.replace(".", "/"));
+            document = builder.parse(new InputSource(res.getContentStream()));
+            resource = JNDIResourceUtils.convertElementToResource(document.getDocumentElement());
+        } catch (RegistryException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return resource;
+    }
+
     private void registerAllResources() {
         try {
             for (Resource resource : getAllResources()) {
@@ -106,7 +125,7 @@ public class JNDIResourceManager {
 
     private void unregisterAllResources() {
         for (Resource resource : getAllResources()) {
-            unregisterJNDIResource(resource);
+            unregisterJNDIResource(resource.getName());
         }
     }
 
@@ -138,11 +157,11 @@ public class JNDIResourceManager {
         }
     }
 
-    private void unregisterJNDIResource(Resource resource) {
+    private void unregisterJNDIResource(String name) {
         InitialContext initContext = getInitialContext();
         try {
-            if (isRegistered(initContext, resource.getName())) {
-                initContext.unbind(resource.getName());
+            if (isRegistered(initContext, name)) {
+                initContext.unbind(name);
             }
         } catch (NamingException e) {
             e.printStackTrace();
@@ -211,13 +230,13 @@ public class JNDIResourceManager {
         return false;
     }
 
-    public void addJNDIResource(Resource resource){
+    public void addJNDIResource(Resource resource) {
         addResourceToRegistry(resource);
         registerJNDIResource(resource);
     }
 
-    public void removeJNDIResource(Resource resource){
-        unregisterJNDIResource(resource);
-        removeResourceFromRegistry(resource);
+    public void removeJNDIResource(String name) {
+        unregisterJNDIResource(name);
+        removeResourceFromRegistry(name);
     }
 }

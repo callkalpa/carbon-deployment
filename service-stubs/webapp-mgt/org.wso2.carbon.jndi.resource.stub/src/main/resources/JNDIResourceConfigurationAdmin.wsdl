@@ -1,12 +1,26 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2461="http://data.mgt.resource.jndi.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://services.mgt.resource.jndi.carbon.wso2.org" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://services.mgt.resource.jndi.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax2221="http://data.mgt.resource.jndi.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://services.mgt.resource.jndi.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://services.mgt.resource.jndi.carbon.wso2.org">
     <wsdl:documentation>JNDIResourceConfigurationAdmin</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax2462="http://data.mgt.resource.jndi.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema xmlns:ax2222="http://data.mgt.resource.jndi.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://data.mgt.resource.jndi.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="removeJNDIResource">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="resource" nillable="true" type="ax2462:Resource"></xs:element>
+                        <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getResource">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getResourceResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2222:Resource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -18,14 +32,14 @@
             <xs:element name="getAllResourcesResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2462:Resource"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2222:Resource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="addJNDIResource">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="resource" nillable="true" type="ax2462:Resource"></xs:element>
+                        <xs:element minOccurs="0" name="resource" nillable="true" type="ax2222:Resource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -46,6 +60,12 @@
     <wsdl:message name="addJNDIResourceRequest">
         <wsdl:part name="parameters" element="ns1:addJNDIResource"></wsdl:part>
     </wsdl:message>
+    <wsdl:message name="getResourceRequest">
+        <wsdl:part name="parameters" element="ns1:getResource"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getResourceResponse">
+        <wsdl:part name="parameters" element="ns1:getResourceResponse"></wsdl:part>
+    </wsdl:message>
     <wsdl:message name="removeJNDIResourceRequest">
         <wsdl:part name="parameters" element="ns1:removeJNDIResource"></wsdl:part>
     </wsdl:message>
@@ -58,6 +78,10 @@
     <wsdl:portType name="JNDIResourceConfigurationAdminPortType">
         <wsdl:operation name="addJNDIResource">
             <wsdl:input message="tns:addJNDIResourceRequest" wsaw:Action="urn:addJNDIResource"></wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getResource">
+            <wsdl:input message="tns:getResourceRequest" wsaw:Action="urn:getResource"></wsdl:input>
+            <wsdl:output message="tns:getResourceResponse" wsaw:Action="urn:getResourceResponse"></wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="removeJNDIResource">
             <wsdl:input message="tns:removeJNDIResourceRequest" wsaw:Action="urn:removeJNDIResource"></wsdl:input>
@@ -74,6 +98,15 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getResource">
+            <soap:operation soapAction="urn:getResource" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="removeJNDIResource">
             <soap:operation soapAction="urn:removeJNDIResource" style="document"></soap:operation>
@@ -99,6 +132,15 @@
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
         </wsdl:operation>
+        <wsdl:operation name="getResource">
+            <soap12:operation soapAction="urn:getResource" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="removeJNDIResource">
             <soap12:operation soapAction="urn:removeJNDIResource" style="document"></soap12:operation>
             <wsdl:input>
@@ -122,6 +164,15 @@
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getResource">
+            <http:operation location="getResource"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="removeJNDIResource">
             <http:operation location="removeJNDIResource"></http:operation>
