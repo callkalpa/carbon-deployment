@@ -515,7 +515,8 @@ public abstract class AbstractWebappDeployer extends AbstractDeployer {
 
                 if (configSystemRegistry.resourceExists(webappResourcePath)) {
                     Resource webappResource = configSystemRegistry.get(webappResourcePath);
-                    return Boolean.parseBoolean(webappResource.getProperty(WebappsConstants.WebappState.STOPPED));
+                    String webappStatus = webappResource.getProperty(WebappsConstants.WEBAPP_STATUS);
+                    return webappStatus.equalsIgnoreCase(WebappsConstants.WebappState.STOPPED);
                 }
             } catch (RegistryException e) {
                 log.error("Failed to read persisted webapp stopped state for: " + webApplication.getContext());

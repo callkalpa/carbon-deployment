@@ -1311,14 +1311,13 @@ public class WebappAdmin extends AbstractAdmin {
      */
     private void persistWebappStoppedState(WebApplication webApplication) {
         if (DataHolder.getRegistryService() != null) {
-
-            boolean webappStatus = webApplication.getState().equalsIgnoreCase(WebappsConstants.WebappState.STOPPED);
-            
             try {
                 Registry configSystemRegistry = DataHolder.getRegistryService().getConfigSystemRegistry(
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
                 String webappResourcePath = WebAppUtils.getWebappResourcePath(webApplication);
                 Resource webappResource;
+
+                String webappStatus = webApplication.getState();
 
                 if (configSystemRegistry.resourceExists(webappResourcePath)) {
                     webappResource = configSystemRegistry.get(webappResourcePath);
@@ -1326,31 +1325,10 @@ public class WebappAdmin extends AbstractAdmin {
                     webappResource = configSystemRegistry.newCollection();
                 }
 
-                webappResource.setProperty(WebappsConstants.WebappState.STOPPED, Boolean.toString(webappStatus));
+                webappResource.setProperty(WebappsConstants.WEBAPP_STATUS, webappStatus);
                 configSystemRegistry.put(webappResourcePath, webappResource);
             } catch (RegistryException e) {
                 log.error("Failed to persist webapp stopped state for: " + webApplication.getContext());
-            }
-        }
-    }
-
-    /**
-     * Removes the webapp stopped entry from the registry
-     *
-     * @param webApplication WebApplication instance
-     */
-    private void removeWebappStoppedStatus(WebApplication webApplication) {
-        if (DataHolder.getRegistryService() != null) {
-            try {
-                Registry configSystemRegistry = DataHolder.getRegistryService().getConfigSystemRegistry(
-                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
-                String webappResourcePath = WebAppUtils.getWebappResourcePath(webApplication);
-
-                if (configSystemRegistry.resourceExists(webappResourcePath)) {
-                    configSystemRegistry.delete(webappResourcePath);
-                }
-            } catch (RegistryException e) {
-                log.error("Failed to remove persisted webapp stopped state for: " + webApplication.getContext());
             }
         }
     }

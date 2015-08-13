@@ -84,6 +84,7 @@ public final class WebappsConstants {
 
     // Webapp stopped state persistence related constants
     public static final String WEBAPP_RESOURCE_PATH_ROOT = "/repository/webapps/";
+    public static final String WEBAPP_STATUS = "Status";
 
     public static final class WebappState {
         public static final String STARTED = "started";
