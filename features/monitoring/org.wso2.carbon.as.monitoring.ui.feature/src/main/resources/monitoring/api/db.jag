@@ -20,33 +20,90 @@
 var log = new Log();
 var config = require('/config/config.json');
 
-function executeQuery(sql, params) {
-    var results;
-    var db = getDbConnection();
+var AUTHORIZATION_HEADER = "authorizationHeader";
+var DAS_SERVICE_URL = "DASServiceUrl";
+var DAS_USERNAME = "DASUsername";
+var DAS_PASSWORD = "DASPassword";
 
-    if (params == null) {
-        return db.query(sql);
+/**
+ * Use the REST API provided by DAS to retrieve summarized information.
+ * *
+ * @param tableName tabele name in DAS
+ * @param query     query parameters as a string
+ * @returns {*}     return the results of the REST API call
+ */
+function getDataFromDAS(tableName, query) {
+    var dasServiceURL;
+    var authorizationHeader;
+
+    if (!(dasServiceURL = application.get(DAS_SERVICE_URL))) {
+        dasServiceURL = getDASServiceURL();
+        application.put(DAS_SERVICE_URL, dasServiceURL);
     }
 
-    // duplicate the parameters in the case of percentage calculation
-    if (sql.split('?').length - 1 > params.length) {
-        params = params.concat(params);
+    if (!(authorizationHeader = application.get(AUTHORIZATION_HEADER))) {
+        authorizationHeader = getAuthorizationHeader();
+        application.put(AUTHORIZATION_HEADER, authorizationHeader)
     }
 
-    // add sql statement as the first parameter
-    params = [sql].concat(params);
+    if (dasServiceURL && authorizationHeader) {
+        var data = {
+            "tableName": tableName,
+            "query": query,
+            "start": 0,
+            "count": 100
+        };
 
-    if (log.isDebugEnabled()) {
-        log.debug('Query parameters: ' + params);
+        var httpHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + authorizationHeader
+        };
+
+        var result = post(dasServiceURL, JSON.stringify(data), httpHeaders, "application/json");
+        print(result.data);
+        return result.data;
+
+    } else {
+        log.error("Either DAS Service URL or Authorization header is incorrect, please check.");
     }
-
-    result = db.query.apply(db, params);
-    db.close();
-    return result;
 }
 
-function getDbConnection() {
-    var db = new Database(config.database);
-    return db;
+/**
+ * Get the DAS service URL from the configuration.
+ *
+ * @returns {string}    DAS service URL
+ */
+function getDASServiceURL() {
+    var dasServiceURL = config[DAS_SERVICE_URL];
+
+    if (!dasServiceURL) {
+        log.error("DAS Service URL is not defined.");
+        return;
+    }
+
+    return dasServiceURL + '/analytics/search';
 }
+
+/**
+ * Return the base64 encoded value of the DAS username and password.
+ *
+ * @returns {*} base64 encoded username:password
+ */
+function getAuthorizationHeader() {
+    var username = config[DAS_USERNAME];
+    var password = config[DAS_PASSWORD];
+
+    if (!username) {
+        log.error("DAS username is not defined.");
+        return;
+    }
+
+    if (!password) {
+        log.error("DAS password is not defined.");
+        return;
+    }
+
+    return javax.xml.bind.DatatypeConverter.printBase64Binary(new java.lang.String(username + ":" + password).getBytes());
+}
+
 %>
