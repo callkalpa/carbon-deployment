@@ -19,38 +19,47 @@
 include('../db.jag');
 var helper = require('as-data-util.js');
 
-// type: select statement
+var FACET = 'time_facet';
+var AVERAGE_REQUEST_COUNT = 'AVG_avg_request_count';
+
+// This map holds the field name, operation and alias and for request count, response time and error count
 var parameterMapping = {
-    'request': 'avg(averageRequestCount)',
-    'response': 'avg(averageResponseTime)',
-    'error': 'sum(httpErrorCount)'
+    'request': ['avg_request_count', 'AVG', 'AVG_avg_request_count'],
+    'response': ['avg_response_time', 'AVG', 'AVG_avg_response_time'],
+    'error': ['http_error_count','SUM', 'AVG_avg_error_count']
 };
 
-function buildTimeVaryingSql(selectStatement, whereClause) {
-    return 'SELECT ' + selectStatement + ' as value, ' +
-           'UNIX_TIMESTAMP(STR_TO_DATE(substring(time,1,13), \'%Y-%m-%d %H:\')) * 1000 as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause +
-           ' GROUP BY substring(time,1,13);';
-}
-
-function getTimeVaryingStatData(conditions, type) {
-    var selectStatement = parameterMapping[type];
-    var sql = buildTimeVaryingSql(selectStatement, conditions.sql);
-    return executeQuery(sql, conditions.params);
+function getTimeVaryingStatData(conditions, mappedParameters) {
+    results = getDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [{
+        "fieldName": mappedParameters[0],
+        "aggregate": mappedParameters[1],
+        "alias": mappedParameters[2]
+    }
+    ]);
+    
+    return results;
 }
 
 function getTimeVaryingStat(conditions, type, color) {
     var dataArray = [];
     var i, len;
     var row;
-    var results = getTimeVaryingStatData(conditions, type);
+    var mappedParameters = parameterMapping[type];
+    
+    var results = JSON.parse(getTimeVaryingStatData(conditions, mappedParameters));
     var chartOptions = {};
-
+    
     for (i = 0, len = results.length; i < len; i++) {
-        row = results[i];
-        dataArray.push([row['time'], row['value']]);
+        row = results[i]['values'];
+        var time = new Date(String(row[FACET][0]).replace(' ', 'T') + ':00:00.000Z').getTime();
+        dataArray.push([Number(time).toPrecision(), row[mappedParameters[2]]]);
     }
 
+    // sorting the results
+    dataArray.sort(function (a, b) {
+        return Number(a[0]) - Number(b[0]);
+    });
+    
     if (color != null) {
         chartOptions = {
             'colors': [color]
