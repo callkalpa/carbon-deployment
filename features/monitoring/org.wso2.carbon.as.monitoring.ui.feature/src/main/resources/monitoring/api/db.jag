@@ -17,13 +17,17 @@
  * under the License.
  */
 
-var log = new Log();
+var log = new Log("DB");
 var config = require('/config/config.json');
 
 var AUTHORIZATION_HEADER = "authorizationHeader";
 var DAS_SERVICE_URL = "DASServiceUrl";
 var DAS_USERNAME = "DASUsername";
 var DAS_PASSWORD = "DASPassword";
+
+var DAS_TABLE_MAPPING = {
+    "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE"
+};
 
 /**
  * Use the REST API provided by DAS to retrieve summarized information.
@@ -32,7 +36,7 @@ var DAS_PASSWORD = "DASPassword";
  * @param query     query parameters as a string
  * @returns {*}     return the results of the REST API call
  */
-function getDataFromDAS(tableName, query) {
+function getDataFromDAS(tableName, query, aggregateLevel, facetField, aggregateFields) {
     var dasServiceURL;
     var authorizationHeader;
 
@@ -50,8 +54,9 @@ function getDataFromDAS(tableName, query) {
         var data = {
             "tableName": tableName,
             "query": query,
-            "start": 0,
-            "count": 100
+            "aggregateLevel": aggregateLevel,
+            "groupByField": facetField,
+            "aggregateFields": aggregateFields
         };
 
         var httpHeaders = {
@@ -60,7 +65,6 @@ function getDataFromDAS(tableName, query) {
         };
 
         var result = post(dasServiceURL, JSON.stringify(data), httpHeaders, "application/json");
-        print(result.data);
         return result.data;
 
     } else {
@@ -81,7 +85,7 @@ function getDASServiceURL() {
         return;
     }
 
-    return dasServiceURL + '/analytics/search';
+    return dasServiceURL + '/analytics/aggregates';
 }
 
 /**
