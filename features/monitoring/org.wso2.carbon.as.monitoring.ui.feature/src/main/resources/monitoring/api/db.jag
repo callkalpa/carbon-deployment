@@ -26,9 +26,11 @@ var DAS_USERNAME = "DASUsername";
 var DAS_PASSWORD = "DASPassword";
 
 var AGGREGATE_RESOURCE = "aggregates";
+var SEARCH_RESOURCE = "search";
 
 var DAS_TABLE_MAPPING = {
-    "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE"
+    "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE",
+    "NODE_LIST": "MSS_NODES"
 };
 
 /**
@@ -53,6 +55,25 @@ function getAggregateDataFromDAS(tableName, query, aggregateLevel, facetField, a
 
     return sendDASRequest(data, AGGREGATE_RESOURCE);
 
+}
+
+/**
+ * Use the REST API provided by DAS to retrieve search information.
+ *
+ * @param tableName         table name in DAS
+ * @param query             query parameter as a string
+ * @param start             start
+ * @param count             count
+ */
+function getSearchDataFromDAS(tableName, query, start, count) {
+    var data = {
+        "tableName": tableName,
+        "query": query,
+        "start": start,
+        "count": count
+    };
+
+    return sendDASRequest(data, SEARCH_RESOURCE);
 }
 
 /**

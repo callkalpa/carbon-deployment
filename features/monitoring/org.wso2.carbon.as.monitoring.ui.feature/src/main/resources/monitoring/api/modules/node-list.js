@@ -18,25 +18,31 @@
 
 include('../db.jag');
 
+var SERVER_ADDRESS = 'server_address';
+
 function buildNodeListSql() {
     return 'SELECT distinct(serverName) from REQUESTS_SUMMARY_PER_MINUTE;';
 }
 
 function getNodeList() {
     var dataArray = [];
-    var elements = [];
-    var i, len;
-    var sql = buildNodeListSql();
-    var results = executeQuery(sql);
+    var nodes = [];
+    var i;
+
+    var results = JSON.parse(getSearchDataFromDAS(DAS_TABLE_MAPPING.NODE_LIST, "", 0, 1000));
+
+    for (i = 0; i < results.length; i++) {
+        nodes.push(results[i]['values'][SERVER_ADDRESS]);
+    }
 
     dataArray.push('All');
     for (i = 0, len = results.length; i < len; i++) {
-        elements.push(results[i]['serverName']);
+        nodes.push(results[i]['serverName']);
     }
 
     dataArray.push({
         'groupName': 'Other Nodes',
-        'elements': elements
+        'elements': nodes
     });
 
     print(dataArray);
