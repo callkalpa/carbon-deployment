@@ -19,6 +19,15 @@
 include('../db.jag');
 var helper = require('as-data-util.js');
 
+var FACET = 'all_facet';
+
+// field names
+var AVERAGE_REQUEST_COUNT = 'avg_request_count';
+var AVERAGE_RESPONSE_TIME = 'avg_response_time';
+var SESSION_COUNT = 'session_count';
+var HTTP_SUCCESS_COUNT = 'http_success_count';
+var HTTP_ERROR_COUNT = 'http_error_count';
+
 function buildInfoBoxGreaterThan1200DaysSql(selectStatement, type, whereClause) {
     return 'SELECT ' + selectStatement + '(' + type + ') as value, YEAR(time) as time ' +
            'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY YEAR(time);';
@@ -93,96 +102,141 @@ function getDataForInfoBoxBarChart(type, conditions) {
     return arrList;
 }
 
-function buildInfoBoxRequestSql(whereClause) {
-    return 'SELECT sum(averageRequestCount) as totalRequest, ' +
-           'max(averageRequestCount) as maxRequest, avg(averageRequestCount) as avgRequest, ' +
-           'min(averageRequestCount) as minRequest FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ';';
-}
-
 function getInfoBoxRequestStat(conditions) {
     var output = {};
-    var sql = buildInfoBoxRequestSql(conditions.sql);
-    var results = executeQuery(sql, conditions.params)[0];
+
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }, {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "MIN",
+            "alias": "MIN_" + AVERAGE_REQUEST_COUNT
+        }, {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "MAX",
+            "alias": "MAX_" + AVERAGE_REQUEST_COUNT
+        }, {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "AVG",
+            "alias": "AVG_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results)[0]['values'];
 
     output['title'] = 'Total Requests';
     output['measure_label'] = 'Per min';
 
-    if (results['totalRequest'] != null) {
-        output['total'] = results['totalRequest'];
-        output['max'] = results['maxRequest'];
-        output['avg'] = Math.round(results['avgRequest']);
-        output['min'] = results['minRequest']
+    if (results['SUM_' + AVERAGE_REQUEST_COUNT] != null) {
+        output['total'] = results['SUM_' + AVERAGE_REQUEST_COUNT];
+        output['max'] = results['MAX_' + AVERAGE_REQUEST_COUNT];
+        output['avg'] = Math.round(results['AVG_' + AVERAGE_REQUEST_COUNT]);
+        output['min'] = results['MIN_' + AVERAGE_REQUEST_COUNT]
     } else {
         output['total'] = output['max'] = output['avg'] = output['min'] = 'N/A';
     }
-    output['graph'] = getDataForInfoBoxBarChart('averageRequestCount', conditions);
+    
+    // todo: enable mini-chart for average requests
+    //output['graph'] = getDataForInfoBoxBarChart('averageRequestCount', conditions);
+    
     print(output);
-}
-
-function buildInfoBoxResponseSql(whereClause) {
-    return 'SELECT max(averageResponseTime) as maxResponse, ' +
-           'avg(averageResponseTime) as avgResponse, min(averageResponseTime) as minResponse ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ';';
 }
 
 function getInfoBoxResponseStat(conditions) {
     var output = {};
 
-    var sql = buildInfoBoxResponseSql(conditions.sql);
-    var results = executeQuery(sql, conditions.params)[0];
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+        {
+            "fieldName": AVERAGE_RESPONSE_TIME,
+            "aggregate": "MIN",
+            "alias": "MIN_" + AVERAGE_RESPONSE_TIME
+        }, {
+            "fieldName": AVERAGE_RESPONSE_TIME,
+            "aggregate": "MAX",
+            "alias": "MAX_" + AVERAGE_RESPONSE_TIME
+        }, {
+            "fieldName": AVERAGE_RESPONSE_TIME,
+            "aggregate": "AVG",
+            "alias": "AVG_" + AVERAGE_RESPONSE_TIME
+        }
+    ]);
+
+    results = JSON.parse(results)[0]['values'];
+
     output['title'] = 'Response Time';
     output['measure_label'] = 'ms';
 
-    if (results['maxResponse'] != null) {
-        output['max'] = results['maxResponse'];
-        output['avg'] = Math.round(results['avgResponse']);
-        output['min'] = results['minResponse'];
+    if (results['MAX_' + AVERAGE_RESPONSE_TIME] != null) {
+        output['max'] = results['MAX_' + AVERAGE_RESPONSE_TIME];
+        output['avg'] = Math.round(results['AVG_' + AVERAGE_RESPONSE_TIME]);
+        output['min'] = results['MIN_' + AVERAGE_RESPONSE_TIME];
     } else {
         output['max'] = output['avg'] = output['min'] = 'N/A';
     }
-    output['graph'] = getDataForInfoBoxBarChart('averageResponseTime', conditions);
-    print(output);
-}
+    // todo: enable mini-chart for average response time
+    //output['graph'] = getDataForInfoBoxBarChart('averageResponseTime', conditions);
 
-function buildInfoBoxSessionSql(whereClause) {
-    return 'SELECT sum(sessionCount) as totalSession, avg(sessionCount) as avgSession ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ';';
+    print(output);
 }
 
 function getInfoBoxSessionStat(conditions) {
     var output = {};
 
-    var sql = buildInfoBoxSessionSql(conditions.sql);
-    var results = executeQuery(sql, conditions.params)[0];
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+        {
+            "fieldName": SESSION_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + SESSION_COUNT
+        }, {
+            "fieldName": SESSION_COUNT,
+            "aggregate": "AVG",
+            "alias": "AVG_" + SESSION_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results)[0]['values'];
+
     output['title'] = 'Session';
 
-    if (results['totalSession'] != null) {
-        output['total'] = results['totalSession'];
-        output['avg'] = Math.round(results['avgSession']);
+    if (results['SUM_' + SESSION_COUNT] != null) {
+        output['total'] = results['SUM_' + SESSION_COUNT];
+        output['avg'] = Math.round(results['AVG_' + SESSION_COUNT]);
     } else {
         output['total'] = output['avg'] = 'N/A';
     }
-    print(output);
-}
 
-function buildInfoBoxErrorSql(whereClause) {
-    return 'SELECT sum(httpErrorCount) as totalError, ' +
-           '(sum(httpErrorCount)*100)/(sum(httpSuccessCount)+sum(httpErrorCount)) as percentageError ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ';';
+    print(output);
 }
 
 function getInfoBoxErrorStat(conditions) {
     var output = {};
 
-    var sql = buildInfoBoxErrorSql(conditions.sql);
-    var results = executeQuery(sql, conditions.params)[0];
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+        {
+            "fieldName": HTTP_SUCCESS_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + HTTP_SUCCESS_COUNT
+        }, {
+            "fieldName": HTTP_ERROR_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + HTTP_ERROR_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results)[0]['values'];
+
     output['title'] = 'Errors';
 
-    if (results['totalError'] != null) {
-        output['total'] = results['totalError'];
-        output['percentage'] = results['percentageError'].toFixed(2) + '\x25';
+    if (results['SUM_' + HTTP_ERROR_COUNT] != null) {
+        output['total'] = results['SUM_' + HTTP_ERROR_COUNT];
+        output['percentage'] = 
+                (results['SUM_' + HTTP_ERROR_COUNT] * 100 / results['SUM_' + HTTP_SUCCESS_COUNT]).toFixed(2) + '\x25';
     } else {
         output['total'] = output['percentage'] = 'N/A';
     }
+
     print(output);
 }
