@@ -30,13 +30,15 @@ var DAS_TABLE_MAPPING = {
 };
 
 /**
- * Use the REST API provided by DAS to retrieve summarized information.
- * *
- * @param tableName tabele name in DAS
- * @param query     query parameters as a string
- * @returns {*}     return the results of the REST API call
+ * Use the REST API provided by DAS to retrieve aggregated information.
+ * @param tableName         table name in DAS
+ * @param query             query parameter as a string
+ * @param aggregateLevel    aggregate level
+ * @param facetField        facet field
+ * @param aggregateFields   information about aggregated fields
+ * @returns {*}
  */
-function getDataFromDAS(tableName, query, aggregateLevel, facetField, aggregateFields) {
+function getAggregateDataFromDAS(tableName, query, aggregateLevel, facetField, aggregateFields) {
     var dasServiceURL;
     var authorizationHeader;
 
