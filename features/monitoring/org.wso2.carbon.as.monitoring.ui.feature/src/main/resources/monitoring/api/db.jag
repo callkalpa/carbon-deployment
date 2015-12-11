@@ -25,12 +25,15 @@ var DAS_SERVICE_URL = "DASServiceUrl";
 var DAS_USERNAME = "DASUsername";
 var DAS_PASSWORD = "DASPassword";
 
+var AGGREGATE_RESOURCE = "aggregates";
+
 var DAS_TABLE_MAPPING = {
     "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE"
 };
 
 /**
  * Use the REST API provided by DAS to retrieve aggregated information.
+ *
  * @param tableName         table name in DAS
  * @param query             query parameter as a string
  * @param aggregateLevel    aggregate level
@@ -39,6 +42,26 @@ var DAS_TABLE_MAPPING = {
  * @returns {*}
  */
 function getAggregateDataFromDAS(tableName, query, aggregateLevel, facetField, aggregateFields) {
+
+    var data = {
+        "tableName": tableName,
+        "query": query,
+        "aggregateLevel": aggregateLevel,
+        "groupByField": facetField,
+        "aggregateFields": aggregateFields
+    };
+
+    return sendDASRequest(data, AGGREGATE_RESOURCE);
+
+}
+
+/**
+ * Sends the reqeust to DAS
+ *
+ * @param data            payload for the POST request
+ * @param restResource    restResource of DAS REST API (ex: aggregates, search)
+ */
+function sendDASRequest(data, restResource) {
     var dasServiceURL;
     var authorizationHeader;
 
@@ -53,24 +76,21 @@ function getAggregateDataFromDAS(tableName, query, aggregateLevel, facetField, a
     }
 
     if (dasServiceURL && authorizationHeader) {
-        var data = {
-            "tableName": tableName,
-            "query": query,
-            "aggregateLevel": aggregateLevel,
-            "groupByField": facetField,
-            "aggregateFields": aggregateFields
-        };
-
         var httpHeaders = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + authorizationHeader
         };
 
-        var result = post(dasServiceURL, JSON.stringify(data), httpHeaders, "application/json");
-        return result.data;
+        var result = post(dasServiceURL + restResource, JSON.stringify(data), httpHeaders, "application/json");
 
+        if (result) {
+            return result.data;
+        } else {
+            log.warn("No data found for [request URL: " + dasServiceURL + ", data: " + data + "]");
+        }
     } else {
         log.error("Either DAS Service URL or Authorization header is incorrect, please check.");
+
     }
 }
 
@@ -87,7 +107,7 @@ function getDASServiceURL() {
         return;
     }
 
-    return dasServiceURL + '/analytics/aggregates';
+    return dasServiceURL + '/analytics/';
 }
 
 /**
