@@ -19,14 +19,8 @@
 
 var log = new Log("DB");
 var config = require('/config/config.json');
+include('constants.jag');
 
-var AUTHORIZATION_HEADER = "authorizationHeader";
-var DAS_SERVICE_URL = "DASServiceUrl";
-var DAS_USERNAME = "DASUsername";
-var DAS_PASSWORD = "DASPassword";
-
-var AGGREGATE_RESOURCE = "aggregates";
-var SEARCH_RESOURCE = "search";
 
 var DAS_TABLE_MAPPING = {
     "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE",

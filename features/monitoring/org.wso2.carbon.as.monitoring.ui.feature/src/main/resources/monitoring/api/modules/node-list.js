@@ -17,8 +17,7 @@
  */
 
 include('../db.jag');
-
-var SERVER_ADDRESS = 'server_address';
+include('../constants.jag');
 
 function buildNodeListSql() {
     return 'SELECT distinct(serverName) from REQUESTS_SUMMARY_PER_MINUTE;';

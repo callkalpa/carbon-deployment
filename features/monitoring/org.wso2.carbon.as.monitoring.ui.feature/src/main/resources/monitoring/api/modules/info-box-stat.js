@@ -17,16 +17,8 @@
  */
 
 include('../db.jag');
+include('../constants.jag')
 var helper = require('as-data-util.js');
-
-var FACET = 'all_facet';
-
-// field names
-var AVERAGE_REQUEST_COUNT = 'avg_request_count';
-var AVERAGE_RESPONSE_TIME = 'avg_response_time';
-var SESSION_COUNT = 'session_count';
-var HTTP_SUCCESS_COUNT = 'http_success_count';
-var HTTP_ERROR_COUNT = 'http_error_count';
 
 function buildInfoBoxGreaterThan1200DaysSql(selectStatement, type, whereClause) {
     return 'SELECT ' + selectStatement + '(' + type + ') as value, YEAR(time) as time ' +
@@ -105,7 +97,7 @@ function getDataForInfoBoxBarChart(type, conditions) {
 function getInfoBoxRequestStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_REQUEST_COUNT,
             "aggregate": "SUM",
@@ -148,7 +140,7 @@ function getInfoBoxRequestStat(conditions) {
 function getInfoBoxResponseStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_RESPONSE_TIME,
             "aggregate": "MIN",
@@ -185,7 +177,7 @@ function getInfoBoxResponseStat(conditions) {
 function getInfoBoxSessionStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
         {
             "fieldName": SESSION_COUNT,
             "aggregate": "SUM",
@@ -214,7 +206,7 @@ function getInfoBoxSessionStat(conditions) {
 function getInfoBoxErrorStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
         {
             "fieldName": HTTP_SUCCESS_COUNT,
             "aggregate": "SUM",

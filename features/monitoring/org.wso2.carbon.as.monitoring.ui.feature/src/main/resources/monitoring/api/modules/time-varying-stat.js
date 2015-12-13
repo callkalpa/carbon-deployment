@@ -17,10 +17,8 @@
  */
 
 include('../db.jag');
+include('../constants.jag');
 var helper = require('as-data-util.js');
-
-var FACET = 'time_facet';
-var AVERAGE_REQUEST_COUNT = 'AVG_avg_request_count';
 
 // This map holds the field name, operation and alias and for request count, response time and error count
 var parameterMapping = {
@@ -30,7 +28,7 @@ var parameterMapping = {
 };
 
 function getTimeVaryingStatData(conditions, mappedParameters) {
-    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", FACET, [{
+    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", TIME_FACET, [{
         "fieldName": mappedParameters[0],
         "aggregate": mappedParameters[1],
         "alias": mappedParameters[2]
@@ -42,16 +40,16 @@ function getTimeVaryingStatData(conditions, mappedParameters) {
 
 function getTimeVaryingStat(conditions, type, color) {
     var dataArray = [];
-    var i, len;
+    var i;
     var row;
     var mappedParameters = parameterMapping[type];
     
     var results = JSON.parse(getTimeVaryingStatData(conditions, mappedParameters));
     var chartOptions = {};
-    
-    for (i = 0, len = results.length; i < len; i++) {
+
+    for (i = 0; i < results.length; i++) {
         row = results[i]['values'];
-        var time = new Date(String(row[FACET][0]).replace(' ', 'T') + ':00:00.000Z').getTime();
+        var time = new Date(String(row[TIME_FACET][0]).replace(' ', 'T') + ':00:00.000Z').getTime();
         dataArray.push([Number(time).toPrecision(), row[mappedParameters[2]]]);
     }
 
