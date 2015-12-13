@@ -17,6 +17,9 @@
  * under the License.
  */
 
+
+include('constants.jag');
+
 // define significant number of records to be displayed in charts
 var BROWSER_SIGNIFICANT = 4;
 var OS_SIGNIFICANT = 5;
@@ -36,7 +39,7 @@ var util = require('modules/as-data-util.js');
 var action = request.getParameter('action');
 var conditions = buildConditions();
 
-var log = new Log();
+var log = new Log("AS-DATA");
 
 /*
  build the ammendment to the prepared statement along with the parameter values based on
@@ -44,30 +47,21 @@ var log = new Log();
  */
 function buildConditions() {
     // default data range is the past 24 hours
-    var startTime = request.getParameter('start_time') || util.formatDate(new Date(new Date() - 86400000));
-    var endTime = request.getParameter('end_time') || util.formatDate(new Date());
+    var startTime = util.parseDateTime(request.getParameter('start_time')) || new Date() - 86400000;
+    var endTime = util.parseDateTime(request.getParameter('end_time')) || new Date();
     var node = request.getParameter('node');
     var webapp = request.getParameter('appname');
-    var where = [];
-    var params = [];
+    var conditions = [];
 
-    if (startTime != null) {
-        where.push('time >= ?');
-        params.push(startTime);
-    }
-    if (endTime != null) {
-        where.push('time <= ?');
-        params.push(endTime);
-    }
+    conditions.push(TIME + ': [' + Math.floor(startTime / 1000) + ' TO ' + Math.ceil(endTime / 1000) + ']');
+
     if (node != null && node != 'All') {
-        where.push('serverName = ?');
-        params.push(String(node));
+        conditions.push(SERVER_ADDRESS + ': "' + node + '"');
     }
     if (webapp != null && webapp != 'null') {
-        where.push('webappName= ?');
-        params.push(String(webapp));
+        conditions.push(SERVICE_CLASS + ': "' + webapp + '"');
     }
-    return {'sql': ' WHERE ' + where.join(' AND '), 'params': params};
+    return conditions.join(' AND ');
 }
 
 function getNodeList() {
@@ -263,7 +257,7 @@ function getInfoBoxErrorStat() {
     return infoBoxStat.getInfoBoxErrorStat(conditions);
 }
 
-var actionMapping = {
+var actionMapping_old = {
     'node-list': getNodeList,
     'apps': getAppsStat,
     'browser': getBrowserStat,
@@ -289,6 +283,20 @@ var actionMapping = {
     'error-count': getInfoBoxErrorStat
 };
 
-actionMapping[action]();
+var actionMapping = {
+    'node-list': getNodeList,
+    'request': getRequestStat,
+    'response': getResponseStat,
+    'error': getErrorStat,
+    'request-count': getInfoBoxRequestStat,
+    'response-count': getInfoBoxResponseStat,
+    'session-count': getInfoBoxSessionStat,
+    'error-count': getInfoBoxErrorStat
+};
+
+
+if(actionMapping[action]) {
+   actionMapping[action]();
+}
 
 %>

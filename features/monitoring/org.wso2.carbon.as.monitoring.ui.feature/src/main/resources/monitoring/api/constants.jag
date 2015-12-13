@@ -37,6 +37,8 @@ var SESSION_COUNT = 'session_count';
 var HTTP_SUCCESS_COUNT = 'http_success_count';
 var HTTP_ERROR_COUNT = 'http_error_count';
 var SERVER_ADDRESS = 'server_address';
+var SERVICE_CLASS = 'service_class';
+var TIME = 'time';
 
 
 %>

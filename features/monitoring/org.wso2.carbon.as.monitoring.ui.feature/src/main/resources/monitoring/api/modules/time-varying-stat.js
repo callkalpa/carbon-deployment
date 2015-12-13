@@ -28,7 +28,7 @@ var parameterMapping = {
 };
 
 function getTimeVaryingStatData(conditions, mappedParameters) {
-    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", TIME_FACET, [{
+    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", TIME_FACET, [{
         "fieldName": mappedParameters[0],
         "aggregate": mappedParameters[1],
         "alias": mappedParameters[2]

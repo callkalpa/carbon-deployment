@@ -97,7 +97,7 @@ function getDataForInfoBoxBarChart(type, conditions) {
 function getInfoBoxRequestStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_REQUEST_COUNT,
             "aggregate": "SUM",
@@ -117,12 +117,13 @@ function getInfoBoxRequestStat(conditions) {
         }
     ]);
 
-    results = JSON.parse(results)[0]['values'];
+    results = JSON.parse(results)[0];
 
     output['title'] = 'Total Requests';
     output['measure_label'] = 'Per min';
 
-    if (results['SUM_' + AVERAGE_REQUEST_COUNT] != null) {
+    if (results != null && results['values']['SUM_' + AVERAGE_REQUEST_COUNT] != null) {
+        results = results['values'];
         output['total'] = results['SUM_' + AVERAGE_REQUEST_COUNT];
         output['max'] = results['MAX_' + AVERAGE_REQUEST_COUNT];
         output['avg'] = Math.round(results['AVG_' + AVERAGE_REQUEST_COUNT]);
@@ -140,7 +141,7 @@ function getInfoBoxRequestStat(conditions) {
 function getInfoBoxResponseStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_RESPONSE_TIME,
             "aggregate": "MIN",
@@ -156,12 +157,13 @@ function getInfoBoxResponseStat(conditions) {
         }
     ]);
 
-    results = JSON.parse(results)[0]['values'];
+    results = JSON.parse(results)[0];
 
     output['title'] = 'Response Time';
     output['measure_label'] = 'ms';
 
-    if (results['MAX_' + AVERAGE_RESPONSE_TIME] != null) {
+    if (results != null && results['values']['MAX_' + AVERAGE_RESPONSE_TIME] != null) {
+        results = results['values'];
         output['max'] = results['MAX_' + AVERAGE_RESPONSE_TIME];
         output['avg'] = Math.round(results['AVG_' + AVERAGE_RESPONSE_TIME]);
         output['min'] = results['MIN_' + AVERAGE_RESPONSE_TIME];
@@ -177,7 +179,7 @@ function getInfoBoxResponseStat(conditions) {
 function getInfoBoxSessionStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
         {
             "fieldName": SESSION_COUNT,
             "aggregate": "SUM",
@@ -189,11 +191,12 @@ function getInfoBoxSessionStat(conditions) {
         }
     ]);
 
-    results = JSON.parse(results)[0]['values'];
+    results = JSON.parse(results)[0];
 
     output['title'] = 'Session';
 
-    if (results['SUM_' + SESSION_COUNT] != null) {
+    if (results != null && results['values']['SUM_' + SESSION_COUNT] != null) {
+        results = results['values'];
         output['total'] = results['SUM_' + SESSION_COUNT];
         output['avg'] = Math.round(results['AVG_' + SESSION_COUNT]);
     } else {
@@ -206,7 +209,7 @@ function getInfoBoxSessionStat(conditions) {
 function getInfoBoxErrorStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, "", "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
         {
             "fieldName": HTTP_SUCCESS_COUNT,
             "aggregate": "SUM",
@@ -218,11 +221,12 @@ function getInfoBoxErrorStat(conditions) {
         }
     ]);
 
-    results = JSON.parse(results)[0]['values'];
+    results = JSON.parse(results)[0];
 
     output['title'] = 'Errors';
 
-    if (results['SUM_' + HTTP_ERROR_COUNT] != null) {
+    if (results != null && results['values']['SUM_' + HTTP_ERROR_COUNT] != null) {
+        results = results['values'];
         output['total'] = results['SUM_' + HTTP_ERROR_COUNT];
         output['percentage'] = 
                 (results['SUM_' + HTTP_ERROR_COUNT] * 100 / results['SUM_' + HTTP_SUCCESS_COUNT]).toFixed(2) + '\x25';
