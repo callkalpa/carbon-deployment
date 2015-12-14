@@ -97,7 +97,7 @@ function getDataForInfoBoxBarChart(type, conditions) {
 function getInfoBoxRequestStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_REQUEST_COUNT,
             "aggregate": "SUM",
@@ -141,7 +141,7 @@ function getInfoBoxRequestStat(conditions) {
 function getInfoBoxResponseStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", ALL_FACET, [
         {
             "fieldName": AVERAGE_RESPONSE_TIME,
             "aggregate": "MIN",
@@ -179,7 +179,7 @@ function getInfoBoxResponseStat(conditions) {
 function getInfoBoxSessionStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", ALL_FACET, [
         {
             "fieldName": SESSION_COUNT,
             "aggregate": "SUM",
@@ -209,7 +209,7 @@ function getInfoBoxSessionStat(conditions) {
 function getInfoBoxErrorStat(conditions) {
     var output = {};
 
-    var results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", ALL_FACET, [
+    var results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", ALL_FACET, [
         {
             "fieldName": HTTP_SUCCESS_COUNT,
             "aggregate": "SUM",

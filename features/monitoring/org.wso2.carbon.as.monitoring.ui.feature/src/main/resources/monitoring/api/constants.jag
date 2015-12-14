@@ -28,9 +28,16 @@ var DAS_PASSWORD = "DASPassword";
 var AGGREGATE_RESOURCE = "aggregates";
 var SEARCH_RESOURCE = "search";
 
+// table names
+REQUEST_SUMMARY_TABLE = 'MSS_REQUESTS_SUMMARY_PER_MINUTE';
+NODE_LIST_TABLE = 'MSS_NODES';
+HTTP_STATUS_TABLE = 'MSS_HTTP_STATUS';
+
+
 // field names
 var ALL_FACET = 'all_facet';
 var TIME_FACET = 'time_facet';
+var HTTP_STATUS_FACET = 'http_status_facet';
 var SERVICE_CLASS_FACET = 'service_class_facet';
 var AVERAGE_REQUEST_COUNT = 'avg_request_count';
 var AVERAGE_RESPONSE_TIME = 'avg_response_time';

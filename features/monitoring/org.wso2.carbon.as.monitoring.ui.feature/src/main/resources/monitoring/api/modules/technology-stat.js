@@ -17,6 +17,7 @@
  */
 
 include('../db.jag');
+include('../constants.jag');
 var helper = require('as-data-util.js');
 
 var dbMapping = {
@@ -76,33 +77,70 @@ function getTechnologyTubularStat(conditions, type, tableHeadings, sortColumn) {
     print(helper.getTabularData(getTechnologyStatData(conditions, type), tableHeadings, sortColumn));
 }
 
-function buildHttpStatusSql(whereClause) {
-    return 'SELECT responseHttpStatusCode as name, ' +
-           'sum(averageRequestCount) as request_count, ' +
-           'round((sum(averageRequestCount)*100/(select sum(averageRequestCount) ' +
-           'FROM HTTP_STATUS ' + whereClause + ')),2) as percentage_request_count ' +
-           'FROM HTTP_STATUS ' + whereClause +
-           ' GROUP BY responseHttpStatusCode ' +
-           'ORDER BY percentage_request_count DESC;';
+function getHttpStatusAllRequests(conditions) {
+    var results = getAggregateDataFromDAS(HTTP_STATUS_TABLE, conditions, "0", ALL_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results);
+
+    if (results.length > 0) {
+        return results[0]['values']['SUM_' + AVERAGE_REQUEST_COUNT];
+    }
 }
 
 function getHttpStatusStatData(conditions) {
-    var sql = buildHttpStatusSql(conditions.sql);
-    return executeQuery(sql, conditions.params);
+    var output = [];
+    var i, total_request_count;
+    var results, result;
+
+    total_request_count = getHttpStatusAllRequests(conditions);
+    
+    if(total_request_count <= 0){
+        return;
+        
+    }
+    results = getAggregateDataFromDAS(HTTP_STATUS_TABLE, conditions, "0", HTTP_STATUS_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results);
+
+    if (results.length > 0) {
+        for (i = 0; i < results.length; i++) {
+            result = results[i]['values'];
+            output.push([result[HTTP_STATUS_FACET], result['SUM_' + AVERAGE_REQUEST_COUNT], 
+                         (result['SUM_' + AVERAGE_REQUEST_COUNT]*100/total_request_count).toFixed(2)]);
+        }
+    }
+    
+    return output;
 }
 
 function getHttpStatusStat(conditions) {
     var dataArray = [];
     var ticks = [];
-    var i, len;
-    var row;
+    var i;
     var opt;
-    var results = getHttpStatusStatData(conditions);
+    var total_request_count = 0;
+    var results, result;
 
-    for (i = 0, len = results.length; (i < len) && (i < 5); i++) {
-        row = results[i];
-        dataArray.push([i, row['request_count']]);
-        ticks.push([i, row['name']]);
+    results = getHttpStatusStatData(conditions);
+
+    if (results.length > 0) {
+        for (i = 0; i < results.length && (i < 5); i++) {
+            result = results[i];
+            dataArray.push([i, result[1]]);
+            ticks.push([i, result[0]]);
+        }
     }
 
     chartOptions = {

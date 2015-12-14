@@ -294,7 +294,9 @@ var actionMapping = {
     'request-count': getInfoBoxRequestStat,
     'response-count': getInfoBoxResponseStat,
     'session-count': getInfoBoxSessionStat,
-    'error-count': getInfoBoxErrorStat
+    'error-count': getInfoBoxErrorStat,
+    'top-http-status': getHttpStatusStat,
+    'top-http-status-tabular': getHttpStatusTabularStat
 };
 
 

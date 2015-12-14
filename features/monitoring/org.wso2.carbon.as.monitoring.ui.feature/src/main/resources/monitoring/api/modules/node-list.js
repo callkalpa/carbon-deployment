@@ -28,7 +28,7 @@ function getNodeList() {
     var nodes = [];
     var i;
 
-    var results = JSON.parse(getSearchDataFromDAS(DAS_TABLE_MAPPING.NODE_LIST, "", 0, 1000));
+    var results = JSON.parse(getSearchDataFromDAS(NODE_LIST_TABLE, "", 0, 1000));
 
     for (i = 0; i < results.length; i++) {
         nodes.push(results[i]['values'][SERVER_ADDRESS]);

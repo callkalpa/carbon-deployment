@@ -28,7 +28,7 @@ function getPastStat(conditions, endTime, timePeriod) {
     var reg = /\d+ TO \d+/;
     conditions = conditions.replace((endTime - timePeriod) + ' TO ' + endTime);
     
-    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", SERVICE_CLASS_FACET, [
+    results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", SERVICE_CLASS_FACET, [
         {
             "fieldName": AVERAGE_REQUEST_COUNT,
             "aggregate": "AVG",
@@ -79,7 +79,7 @@ function getAppsStat(conditions, endTime) {
     var key;
     var results;
 
-    apps = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", SERVICE_CLASS_FACET, [
+    apps = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", SERVICE_CLASS_FACET, [
         {
             "fieldName": AVERAGE_REQUEST_COUNT,
             "aggregate": "SUM",

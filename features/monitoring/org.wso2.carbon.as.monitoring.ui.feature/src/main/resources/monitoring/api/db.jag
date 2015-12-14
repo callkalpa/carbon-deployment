@@ -21,12 +21,6 @@ var log = new Log("DB");
 var config = require('/config/config.json');
 include('constants.jag');
 
-
-var DAS_TABLE_MAPPING = {
-    "REQUEST_SUMMARY": "MSS_REQUESTS_SUMMARY_PER_MINUTE",
-    "NODE_LIST": "MSS_NODES"
-};
-
 /**
  * Use the REST API provided by DAS to retrieve aggregated information.
  *
