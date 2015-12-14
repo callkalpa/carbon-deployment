@@ -17,17 +17,33 @@
  */
 
 include('../db.jag');
+include('../constants.jag');
 
-function buildPastStatSql(whereClause, endTime, timeUnit) {
-    return 'SELECT webappName, ' +
-           'round(avg(averageRequestCount)) as averageRequestCount ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' ' +
-           'AND time  > (STR_TO_DATE(\'' + endTime + '\', \'%Y-%m-%d %H:%i\') - INTERVAL 1 ' + timeUnit + ') GROUP BY webappName;';
-}
+function getPastStat(conditions, endTime, timePeriod) {
+    var results, result;
+    var output = {};
+    var i;
 
-function getPastStat(conditions, endTime, timeUnit) {
-    var sql = buildPastStatSql(conditions.sql, endTime, timeUnit);
-    return executeQuery(sql, conditions.params);
+    // replace the time condition in the query
+    var reg = /\d+ TO \d+/;
+    conditions = conditions.replace((endTime - timePeriod) + ' TO ' + endTime);
+    
+    results = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", SERVICE_CLASS_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "AVG",
+            "alias": "AVG_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results);
+
+    for (i = 0; i < results.length; i++) {
+        result = results[i]['values'];
+        output[result[SERVICE_CLASS_FACET][0]] = Math.round(result['AVG_' + AVERAGE_REQUEST_COUNT]);
+    }
+
+    return output;
 }
 
 function matchPastStatWithApp(webappName, pastDataArray) {
@@ -53,41 +69,49 @@ function getTableHeadings() {
     ];
 }
 
-function buildAppsSql(whereClause) {
-    return 'SELECT webappName, webappType, sum(averageRequestCount) as total_requests, ' +
-           'sum(httpSuccessCount) as total_http_success, sum(httpErrorCount) as total_http_error ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause +
-           ' GROUP BY webappName ORDER BY webappName;'
-}
-
 function getAppsStat(conditions, endTime) {
     var appList = [];
     var tempArray = [];
-    var i, len;
+    var i;
     var lastMinute, lastHour, lastDay, apps;
     var app = {};
     var webappName;
     var key;
-    var sql;
+    var results;
 
-    sql = buildAppsSql(conditions.sql);
+    apps = getAggregateDataFromDAS(DAS_TABLE_MAPPING.REQUEST_SUMMARY, conditions, "0", SERVICE_CLASS_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }, {
+            "fieldName": HTTP_SUCCESS_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + HTTP_SUCCESS_COUNT
+        }, {
+            "fieldName": HTTP_ERROR_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + HTTP_ERROR_COUNT
+        }
+    ]);
+    
+    lastMinute = getPastStat(conditions, endTime, 60000);
+    lastHour = getPastStat(conditions, endTime, 3600000);
+    lastDay = getPastStat(conditions, endTime, 86400000);
 
-    lastMinute = getPastStat(conditions, endTime, 'MINUTE');
-    lastHour = getPastStat(conditions, endTime, 'HOUR');
-    lastDay = getPastStat(conditions, endTime, 'DAY');
-
-    apps = executeQuery(sql, conditions.params);
-
-    for (i = 0, len = apps.length; i < len; i++) {
-        webappName = apps[i]['webappName'];
-
+    apps = JSON.parse(apps);
+    
+    for (i = 0; i < apps.length; i++) {
+        results = apps[i]['values'];
+        webappName = results[SERVICE_CLASS_FACET][0];
+        
         app['webappName'] = webappName;
-        app['webappType'] = apps[i]['webappType'];
-        app['lastMinute'] = matchPastStatWithApp(webappName, lastMinute);
-        app['lastHour'] = matchPastStatWithApp(webappName, lastHour);
-        app['lastDay'] = matchPastStatWithApp(webappName, lastDay);
-        app['totalRequests'] = apps[i]['total_requests'];
-        app['percentageError'] = (apps[i]['total_http_error'] / apps[i]['total_requests']).toFixed(2);
+        app['webappType'] = 'Microservice';
+        app['lastMinute'] = lastMinute[webappName];
+        app['lastHour'] = lastHour[webappName];
+        app['lastDay'] = lastDay[webappName];
+        app['totalRequests'] = results['SUM_' + AVERAGE_REQUEST_COUNT];
+        app['percentageError'] = (results['SUM_' + HTTP_ERROR_COUNT] / results['SUM_' + HTTP_SUCCESS_COUNT]).toFixed(2);
 
         tempArray = [];
         for (key in app) {

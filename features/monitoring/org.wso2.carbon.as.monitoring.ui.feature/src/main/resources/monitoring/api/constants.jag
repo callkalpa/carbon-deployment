@@ -31,6 +31,7 @@ var SEARCH_RESOURCE = "search";
 // field names
 var ALL_FACET = 'all_facet';
 var TIME_FACET = 'time_facet';
+var SERVICE_CLASS_FACET = 'service_class_facet';
 var AVERAGE_REQUEST_COUNT = 'avg_request_count';
 var AVERAGE_RESPONSE_TIME = 'avg_response_time';
 var SESSION_COUNT = 'session_count';

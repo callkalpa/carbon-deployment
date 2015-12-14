@@ -49,7 +49,7 @@ function getTimeVaryingStat(conditions, type, color) {
 
     for (i = 0; i < results.length; i++) {
         row = results[i]['values'];
-        var time = new Date(String(row[TIME_FACET][0]).replace(' ', 'T') + ':00:00.000Z').getTime();
+        var time = new Date(String(row[TIME_FACET][0]).replace(' ', 'T') + ':00.000Z').getTime();
         dataArray.push([Number(time).toPrecision(), row[mappedParameters[2]]]);
     }
 
