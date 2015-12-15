@@ -190,7 +190,7 @@ function getContextStat() {
     if (log.isDebugEnabled()) {
         log.debug('Retrieving context stat');
     }
-    trafficStat.getTrafficStat(conditions, 'context', ['Context', 'Request Count', 'Percentage'],
+    trafficStat.getTrafficStat(conditions, ['Resource method', 'Request Count', 'Percentage'],
             CONTEXT_SORT);
 }
 
@@ -296,7 +296,8 @@ var actionMapping = {
     'session-count': getInfoBoxSessionStat,
     'error-count': getInfoBoxErrorStat,
     'top-http-status': getHttpStatusStat,
-    'top-http-status-tabular': getHttpStatusTabularStat
+    'top-http-status-tabular': getHttpStatusTabularStat,
+    'context': getContextStat
 };
 
 

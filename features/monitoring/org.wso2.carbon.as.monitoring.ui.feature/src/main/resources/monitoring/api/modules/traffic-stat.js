@@ -18,42 +18,62 @@
 
 include('../db.jag');
 
-var dbMapping = {
-    'context': {
-        'table': 'WEBAPP_CONTEXT',
-        'field': 'webappcontext'
-    },
-    'referral': {
-        'table': 'REFERRER',
-        'field': 'referrer'
+function getContextAllRequests(conditions) {
+    
+    var results = getAggregateDataFromDAS(CONTEXT_TABLE, conditions, "0", ALL_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results);
+
+    if (results.length > 0) {
+        return results[0]['values']['SUM_' + AVERAGE_REQUEST_COUNT];
     }
-};
-
-function buildTrafficSql(dbEntry, whereClause) {
-    return 'SELECT sum(averageRequestCount) as request_count, ' +
-           'round((sum(averageRequestCount) *100/(select sum(averageRequestCount) ' +
-           'FROM ' + dbEntry.table + ' ' + whereClause + ')),2) as percentage_request_count, ' +
-           dbEntry.field + ' as name ' +
-           'FROM ' + dbEntry.table + ' ' + whereClause +
-           ' GROUP BY ' + dbEntry.field + ';';
 }
 
-function getTrafficStatData(conditions, type) {
-    var dbEntry = dbMapping[type];
-    var sql = buildTrafficSql(dbEntry, conditions.sql);
-    return executeQuery(sql, conditions.params);
+function getTrafficStatData(conditions) {
+    var output = [];
+    var total_request_count;
+    var results, result;
+
+    total_request_count = getContextAllRequests(conditions);
+
+    if (total_request_count < 0) {
+        return;
+    }
+
+    results = getAggregateDataFromDAS(CONTEXT_TABLE, conditions, "0", CONTEXT_FACET, [
+        {
+            "fieldName": AVERAGE_REQUEST_COUNT,
+            "aggregate": "SUM",
+            "alias": "SUM_" + AVERAGE_REQUEST_COUNT
+        }
+    ]);
+
+    results = JSON.parse(results);
+
+    if (results.length > 0) {
+        for (i = 0; i < results.length; i++) {
+            result = results[i]['values'];
+            output.push([result[CONTEXT_FACET][0], result['SUM_' + AVERAGE_REQUEST_COUNT],
+                         (result['SUM_' + AVERAGE_REQUEST_COUNT] * 100 / total_request_count).toFixed(2)]);
+        }
+    }
+
+    return output;
 }
 
-function getTrafficStat(conditions, type, tableHeadings, sortColumn) {
+function getTrafficStat(conditions, tableHeadings, sortColumn) {
     var dataArray = [];
-    var i, len;
-    var row;
-    var results = getTrafficStatData(conditions, type);
+    var i;
+    var results, result;
 
-    for (i = 0, len = results.length; i < len; i++) {
-        row = results[i];
-        dataArray.push([row['name'], row['request_count'], row['percentage_request_count']]);
-    }
+    dataArray = getTrafficStatData(conditions);
+
     print({
         'data': dataArray,
         'headings': tableHeadings,
