@@ -23,10 +23,14 @@ function getPastStat(conditions, endTime, timePeriod) {
     var results, result;
     var output = {};
     var i;
-
+    var reg;
+    var startTime;
+    
     // replace the time condition in the query
-    var reg = /\d+ TO \d+/;
-    conditions = conditions.replace((endTime - timePeriod) + ' TO ' + endTime);
+    reg = /\d+ TO \d+/;
+    startTime = endTime - timePeriod;
+
+    conditions = conditions.replace(reg, startTime + ' TO ' + endTime);
     
     results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", SERVICE_CLASS_FACET, [
         {
@@ -95,9 +99,9 @@ function getAppsStat(conditions, endTime) {
         }
     ]);
     
-    lastMinute = getPastStat(conditions, endTime, 60000);
-    lastHour = getPastStat(conditions, endTime, 3600000);
-    lastDay = getPastStat(conditions, endTime, 86400000);
+    lastMinute = getPastStat(conditions, endTime, 60);
+    lastHour = getPastStat(conditions, endTime, 3600);
+    lastDay = getPastStat(conditions, endTime, 86400);
 
     apps = JSON.parse(apps);
     
@@ -107,9 +111,9 @@ function getAppsStat(conditions, endTime) {
         
         app['webappName'] = webappName;
         app['webappType'] = 'Microservice';
-        app['lastMinute'] = lastMinute[webappName];
-        app['lastHour'] = lastHour[webappName];
-        app['lastDay'] = lastDay[webappName];
+        app['lastMinute'] = lastMinute[webappName] || '-';
+        app['lastHour'] = lastHour[webappName] || '-';
+        app['lastDay'] = lastDay[webappName] || '-';
         app['totalRequests'] = results['SUM_' + AVERAGE_REQUEST_COUNT];
         app['percentageError'] = (results['SUM_' + HTTP_ERROR_COUNT] / results['SUM_' + HTTP_SUCCESS_COUNT]).toFixed(2);
 

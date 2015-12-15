@@ -53,7 +53,7 @@ function buildConditions() {
     var webapp = request.getParameter('appname');
     var conditions = [];
 
-    conditions.push(TIME + ': {' + Math.floor(startTime / 1000) + ' TO ' + Math.ceil(endTime / 1000) + '}');
+    conditions.push(TIME + ': {' + Math.floor(startTime / 1000) + ' TO ' + Math.ceil(endTime / 1000) + ']');
 
     if (node != null && node != 'All') {
         conditions.push(SERVER_ADDRESS + ': "' + node + '"');
