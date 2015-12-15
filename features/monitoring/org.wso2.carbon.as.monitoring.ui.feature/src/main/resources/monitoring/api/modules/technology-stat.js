@@ -20,63 +20,6 @@ include('../db.jag');
 include('../constants.jag');
 var helper = require('as-data-util.js');
 
-var dbMapping = {
-    'browser': {
-        'table': 'USER_AGENT_FAMILY',
-        'field': 'userAgentFamily'
-    },
-    'os': {
-        'table': 'OPERATING_SYSTEM',
-        'field': 'operatingSystem'
-    },
-    'device-type': {
-        'table': 'DEVICE_TYPE',
-        'field': 'deviceCategory'
-    }
-};
-
-function buildTechnologySql(dbEntry, whereClause) {
-    return 'SELECT ' + dbEntry.field + ' as name, ' +
-           'sum(averageRequestCount) as request_count, ' +
-           'round((sum(averageRequestCount)*100/(select sum(averageRequestCount) ' +
-           'FROM ' + dbEntry.table + ' ' + whereClause + ')), 2) as percentage_request_count ' +
-           'FROM ' + dbEntry.table + ' ' + whereClause +
-           ' GROUP BY ' + dbEntry.field +
-           ' ORDER BY percentage_request_count DESC;';
-}
-
-function getTechnologyStatData(conditions, type) {
-    var dbEntry = dbMapping[type];
-    var sql = buildTechnologySql(dbEntry, conditions.sql);
-    return executeQuery(sql, conditions.params);
-}
-
-function getTechnologyStat(conditions, type, visibleNumbers, groupName) {
-    var dataObject = {};
-    var i, len;
-    var row;
-    var series;
-    var data;
-    var chartOptions = {};
-
-    var results = getTechnologyStatData(conditions, type);
-
-    var shrinkedResults = helper.getShrinkedResultset(results, visibleNumbers, groupName);
-
-    for (i = 0, len = shrinkedResults.length; i < len; i++) {
-        row = shrinkedResults[i];
-        series = 'series' + i;
-        data = {'label': row['name'], 'data': row['request_count']};
-        dataObject[series] = data;
-    }
-
-    print([dataObject, chartOptions]);
-}
-
-function getTechnologyTubularStat(conditions, type, tableHeadings, sortColumn) {
-    print(helper.getTabularData(getTechnologyStatData(conditions, type), tableHeadings, sortColumn));
-}
-
 function getHttpStatusAllRequests(conditions) {
     var results = getAggregateDataFromDAS(HTTP_STATUS_TABLE, conditions, "0", ALL_FACET, [
         {

@@ -82,58 +82,6 @@ function getAppsStat() {
     appList.getAppsStat(conditions, Math.ceil(endTime / 1000));
 }
 
-function getBrowserStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving browser stats');
-    }
-    technologyStat.getTechnologyStat(conditions, 'browser', BROWSER_SIGNIFICANT, 'Other Browsers');
-}
-
-function getBrowserTabularStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving browser stat - tabular');
-    }
-    technologyStat.getTechnologyTubularStat(conditions, 'browser',
-            ['Browser', 'Request Count', 'Percentage'], BROWSER_SORT);
-}
-
-function getOperatingSystemStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving operating system stat');
-    }
-    technologyStat.getTechnologyStat(conditions, 'os', OS_SIGNIFICANT, 'Other Operating Systems');
-}
-
-function getOperatingSystemTabularStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving operating system stat - tabular');
-    }
-    technologyStat.getTechnologyTubularStat(conditions, 'os',
-            ['Operating System', 'Request Count', 'Percentage'], OS_SORT);
-}
-
-function getDeviceTypeStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving device type stat');
-    }
-    technologyStat.getTechnologyStat(conditions, 'device-type', DEVICE_TYPE_SIGNIFICANT,
-            'Other devices');
-}
-
-function getDeviceTypeTabularStat() {
-    var technologyStat = require('modules/technology-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving device type stat - tabular');
-    }
-    technologyStat.getTechnologyTubularStat(conditions, 'device-type',
-            ['Device type', 'Request Count', 'Percentage'], DEVICE_TYPE_SORT);
-}
-
 function getHttpStatusStat() {
     var technologyStat = require('modules/technology-stat.js');
     if (log.isDebugEnabled()) {
@@ -151,40 +99,6 @@ function getHttpStatusTabularStat() {
                                                          'Percentage'], HTTP_RESPONSE_SORT);
 }
 
-function getLanguageStat() {
-    var geoStat = require('modules/geo-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving language stat');
-    }
-    geoStat.getLanguageStat(conditions);
-}
-
-function getLanguageTabularStat() {
-    var geoStat = require('modules/geo-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving language stat - tabular');
-    }
-    geoStat.getLanguageTabularStat(conditions, ['Language', 'Request Count', 'Percentage'],
-            LANGUAGE_SORT);
-}
-
-function getCountryStat() {
-    var geoStat = require('modules/geo-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving country stat');
-    }
-    geoStat.getCountryStat(conditions);
-}
-
-function getCountryTabularStat() {
-    var geoStat = require('modules/geo-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving country stat - tabular');
-    }
-    geoStat.getCountryTabularStat(conditions, ['Country', 'Request Count', 'Percentage'],
-            COUNTRY_SORT);
-}
-
 function getContextStat() {
     var trafficStat = require('modules/traffic-stat.js');
     if (log.isDebugEnabled()) {
@@ -192,15 +106,6 @@ function getContextStat() {
     }
     trafficStat.getTrafficStat(conditions, ['Resource method', 'Request Count', 'Percentage'],
             CONTEXT_SORT);
-}
-
-function getReferralStat() {
-    var trafficStat = require('modules/traffic-stat.js');
-    if (log.isDebugEnabled()) {
-        log.debug('Retrieving referral stat');
-    }
-    trafficStat.getTrafficStat(conditions, 'referral', ['Referrer', 'Request Count',
-                                                        'Percentage'], REFERRAL_SORT)
 }
 
 function getRequestStat() {
@@ -258,32 +163,6 @@ function getInfoBoxErrorStat() {
     }
     return infoBoxStat.getInfoBoxErrorStat(conditions);
 }
-
-var actionMapping_old = {
-    'node-list': getNodeList,
-    'apps': getAppsStat,
-    'browser': getBrowserStat,
-    'browser-tabular': getBrowserTabularStat,
-    'operating-system': getOperatingSystemStat,
-    'operating-system-tabular': getOperatingSystemTabularStat,
-    'device-type': getDeviceTypeStat,
-    'device-type-tabular': getDeviceTypeTabularStat,
-    'top-http-status': getHttpStatusStat,
-    'top-http-status-tabular': getHttpStatusTabularStat,
-    'language': getLanguageStat,
-    'language-tabular': getLanguageTabularStat,
-    'country': getCountryStat,
-    'country-tabular': getCountryTabularStat,
-    'context': getContextStat,
-    'referral': getReferralStat,
-    'request': getRequestStat,
-    'response': getResponseStat,
-    'error': getErrorStat,
-    'request-count': getInfoBoxRequestStat,
-    'response-count': getInfoBoxResponseStat,
-    'session-count': getInfoBoxSessionStat,
-    'error-count': getInfoBoxErrorStat
-};
 
 var actionMapping = {
     'node-list': getNodeList,
