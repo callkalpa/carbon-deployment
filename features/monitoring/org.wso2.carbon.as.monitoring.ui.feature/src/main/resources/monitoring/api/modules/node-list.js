@@ -19,16 +19,12 @@
 include('../db.jag');
 include('../constants.jag');
 
-function buildNodeListSql() {
-    return 'SELECT distinct(serverName) from REQUESTS_SUMMARY_PER_MINUTE;';
-}
-
 function getNodeList() {
     var dataArray = [];
     var nodes = [];
     var i;
 
-    var results = JSON.parse(getSearchDataFromDAS(NODE_LIST_TABLE, "", 0, 1000));
+    var results = JSON.parse(getAllDataFromDAS(NODE_LIST_TABLE));
 
     for (i = 0; i < results.length; i++) {
         nodes.push(results[i]['values'][SERVER_ADDRESS]);

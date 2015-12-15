@@ -41,27 +41,17 @@ function getAggregateDataFromDAS(tableName, query, aggregateLevel, facetField, a
         "aggregateFields": aggregateFields
     };
 
-    return sendDASRequest(data, AGGREGATE_RESOURCE);
+    return sendDASRequest(data, AGGREGATE_RESOURCE, 'POST');
 
 }
 
 /**
- * Use the REST API provided by DAS to retrieve search information.
+ * Use the REST API provided by DAS to retrieve all data from a table.
  *
  * @param tableName         table name in DAS
- * @param query             query parameter as a string
- * @param start             start
- * @param count             count
  */
-function getSearchDataFromDAS(tableName, query, start, count) {
-    var data = {
-        "tableName": tableName,
-        "query": query,
-        "start": start,
-        "count": count
-    };
-
-    return sendDASRequest(data, SEARCH_RESOURCE);
+function getAllDataFromDAS(tableName) {
+    return sendDASRequest("", TABLE_RESOURCE + '/' + tableName, 'GET');
 }
 
 /**
@@ -70,9 +60,10 @@ function getSearchDataFromDAS(tableName, query, start, count) {
  * @param data            payload for the POST request
  * @param restResource    restResource of DAS REST API (ex: aggregates, search)
  */
-function sendDASRequest(data, restResource) {
+function sendDASRequest(data, restResource, httpMethod) {
     var dasServiceURL;
     var authorizationHeader;
+    var result;
 
     if (!(dasServiceURL = application.get(DAS_SERVICE_URL))) {
         dasServiceURL = getDASServiceURL();
@@ -90,7 +81,11 @@ function sendDASRequest(data, restResource) {
             'Authorization': 'Basic ' + authorizationHeader
         };
 
-        var result = post(dasServiceURL + restResource, JSON.stringify(data), httpHeaders, "application/json");
+        if (httpMethod == 'POST'){
+            result = post(dasServiceURL + restResource, JSON.stringify(data), httpHeaders, "application/json");
+        } else {
+            result = get(dasServiceURL + restResource, {}, httpHeaders, "application/json");
+        }
 
         if (result) {
             return result.data;

@@ -26,7 +26,7 @@ var DAS_PASSWORD = "DASPassword";
 
 // DAS REST API specific constants
 var AGGREGATE_RESOURCE = "aggregates";
-var SEARCH_RESOURCE = "search";
+var TABLE_RESOURCE = "tables";
 
 // table names
 var REQUEST_SUMMARY_TABLE = 'MSS_REQUESTS_SUMMARY_PER_MINUTE';
