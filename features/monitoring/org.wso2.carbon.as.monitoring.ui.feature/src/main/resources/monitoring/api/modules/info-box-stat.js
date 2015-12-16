@@ -20,77 +20,75 @@ include('../db.jag');
 include('../constants.jag')
 var helper = require('as-data-util.js');
 
-function buildInfoBoxGreaterThan1200DaysSql(selectStatement, type, whereClause) {
-    return 'SELECT ' + selectStatement + '(' + type + ') as value, YEAR(time) as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY YEAR(time);';
-}
+function getInfoBoxMiniChartStatStat(conditions, facet, field, operation) {
+    var output = [];
+    var i;
+    var results, result;
+    var alias;
 
-function buildInfoBoxGreaterThan90Days(selectStatement, type, whereClause) {
-    return 'SELECT ' + selectStatement + '(' + type + ') as value, ' +
-           'DATE_FORMAT(time, \'%b %Y\') as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY MONTH(time);';
-}
+    alias = operation + '_' + field;
 
-function buildInfoBoxGreaterThan30Days(selectStatement, type, whereClause) {
-    return 'SELECT ' + selectStatement + '(' + type + ') as value, ' +
-           'CONCAT(DATE_FORMAT(DATE_ADD(time, INTERVAL (1 - DAYOFWEEK(time)) DAY),\'%b %d %Y\'), \' - \', ' +
-           'DATE_FORMAT(DATE_ADD(time, INTERVAL (7 - DAYOFWEEK(time)) DAY),\'%b %d %Y\')) as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY WEEK(time);';
-}
+    results = getAggregateDataFromDAS(REQUEST_SUMMARY_TABLE, conditions, "0", facet, [
+        {
+            "fieldName": field,
+            "aggregate": operation,
+            "alias": alias
+        },
+    ]);
 
-function buildInfoBoxGreaterThan1Day(selectStatement, type, whereClause) {
-    return 'SELECT ' + selectStatement + '(' + type + ') as value, ' +
-           'DATE_FORMAT(time, \'%b %d %Y\') as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY DATE(time);';
-}
+    results = JSON.parse(results);
 
-function buildInfoBoxLessThan1Day(selectStatement, type, whereClause) {
-    return 'SELECT ' + selectStatement + '(' + type + ') as value, ' +
-           'DATE_FORMAT(time, \'%H:00\') as time ' +
-           'FROM REQUESTS_SUMMARY_PER_MINUTE ' + whereClause + ' GROUP BY HOUR(time);';
+    for (i = 0; i < results.length; i++) {
+        result = results[i];
+        if (result) {
+            result = result['values'];
+            // push time and the values
+            output.push([result[facet][0], result[alias].toFixed(0)]);
+        }
+    }
+
+    return output;
 }
 
 function getDataForInfoBoxBarChart(type, conditions) {
     var startTime = helper.parseDate(request.getParameter('start_time'));
     var endTime = helper.parseDate(request.getParameter('end_time'));
     var timeDiff = 0;
-    var i, len;
-    var sql;
-    var results;
+    var i;
+    var results, result;
+    var operation, field;
     var arrList = [];
 
     if (request.getParameter('start_time') != null && request.getParameter('end_time') != null) {
         timeDiff = Math.abs((endTime.getTime() - startTime.getTime()) / 86400000);
-    } else {
-        timeDiff = 1;
     }
 
-    var selectStatement = 'SUM';
+    operation = 'SUM';
+    field = AVERAGE_REQUEST_COUNT;
     if (type == 'averageResponseTime') {
-        selectStatement = 'AVG';
+        operation = 'AVG';
+        field = AVERAGE_RESPONSE_TIME;
     }
 
-    if (timeDiff > 1200) {
-        sql = buildInfoBoxGreaterThan1200DaysSql(selectStatement, type, conditions.sql);
-    } else if (timeDiff > 90) {
-        sql = buildInfoBoxGreaterThan90Days(selectStatement, type, conditions.sql);
+    if (timeDiff > 365) {
+        results = getInfoBoxMiniChartStatStat(conditions, YEAR_FACET, field, operation);
     } else if (timeDiff > 30) {
-        sql = buildInfoBoxGreaterThan30Days(selectStatement, type, conditions.sql);
+        results = getInfoBoxMiniChartStatStat(conditions, MONTH_FACET, field, operation);
     } else if (timeDiff > 1) {
-        sql = buildInfoBoxGreaterThan1Day(selectStatement, type, conditions.sql);
-    } else if (timeDiff <= 1) {
-        sql = buildInfoBoxLessThan1Day(selectStatement, type, conditions.sql);
+        results = getInfoBoxMiniChartStatStat(conditions, DAY_FACET, field, operation);
+    } else {
+        results = getInfoBoxMiniChartStatStat(conditions, HOUR_FACET, field, operation);
     }
 
-    results = executeQuery(sql, conditions.params);
-
-    for (i = 0, len = results.length; i < len; i++) {
+    for (i = 0; i < results.length; i++) {
+        result = results[i];
         var tempData = [];
         tempData[0] = i;
-        tempData[1] = results[i]['value'];
-        tempData[2] = results[i]['time'] + ' : ' + results[i]['value'];
+        tempData[1] = result[1];
+        tempData[2] = result[0] + ' : ' + result[1];
         arrList.push(tempData);
     }
+
     return arrList;
 }
 
@@ -132,8 +130,7 @@ function getInfoBoxRequestStat(conditions) {
         output['total'] = output['max'] = output['avg'] = output['min'] = 'N/A';
     }
     
-    // todo: enable mini-chart for average requests
-    //output['graph'] = getDataForInfoBoxBarChart('averageRequestCount', conditions);
+    output['graph'] = getDataForInfoBoxBarChart('averageRequestCount', conditions);
     
     print(output);
 }
@@ -170,8 +167,8 @@ function getInfoBoxResponseStat(conditions) {
     } else {
         output['max'] = output['avg'] = output['min'] = 'N/A';
     }
-    // todo: enable mini-chart for average response time
-    //output['graph'] = getDataForInfoBoxBarChart('averageResponseTime', conditions);
+    
+    output['graph'] = getDataForInfoBoxBarChart('averageResponseTime', conditions);
 
     print(output);
 }
