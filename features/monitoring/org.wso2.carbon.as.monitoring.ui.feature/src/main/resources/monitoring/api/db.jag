@@ -19,6 +19,7 @@
 
 var log = new Log("DB");
 var config = require('/config/config.json');
+var carbon = require('carbon');
 include('constants.jag');
 
 /**
@@ -99,7 +100,8 @@ function sendDASRequest(data, restResource, httpMethod) {
 }
 
 /**
- * Get the DAS service URL from the configuration.
+ * Get the DAS service URL from the configuration. If it is empty, set the service URL of the current server
+ * as the DAS service URL.
  *
  * @returns {string}    DAS service URL
  */
@@ -107,8 +109,7 @@ function getDASServiceURL() {
     var dasServiceURL = config[DAS_SERVICE_URL];
 
     if (!dasServiceURL) {
-        log.error("DAS Service URL is not defined.");
-        return;
+        dasServiceURL = carbon.server.address('https');
     }
 
     return dasServiceURL + '/analytics/';

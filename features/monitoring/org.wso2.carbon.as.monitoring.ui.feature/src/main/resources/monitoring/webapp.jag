@@ -18,6 +18,11 @@
  */
 
 var caramel = require('caramel');
+var carbon = require('carbon');
+var config = require('/config/config.json');
+
+config.gadgetsUrlBase = carbon.server.address('http') + '/monitoring/gadgets';
+
 var uriMatcher = new URIMatcher(request.getRequestURI());
 
 var mapper = function (path) {
@@ -42,7 +47,7 @@ caramel.render({
     aspect: elements.aspect,
     appname: elements.webapp,
     error: [],
-    config: require('/config/config.json')
+    config: config
 });
 
 

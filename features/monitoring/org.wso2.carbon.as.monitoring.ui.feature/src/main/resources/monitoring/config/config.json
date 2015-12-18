@@ -1,6 +1,5 @@
 {
-  "gadgetsUrlBase": "http://localhost:9763/monitoring/gadgets",
-  "DASServiceUrl": "https://localhost:9443",
+  "DASServiceUrl": "",
   "DASUsername": "admin",
   "DASPassword": "admin"
 }

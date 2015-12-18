@@ -20,9 +20,13 @@
 var log = new Log("asmonitor.index");
 var error = [];
 var caramel = require('caramel');
+var carbon = require('carbon');
+var config = require('/config/config.json');
+
+config.gadgetsUrlBase = carbon.server.address('http') + '/monitoring/gadgets';
 
 caramel.render({
     error: error,
-    config: require('/config/config.json')
+    config: config
 });
 %>
