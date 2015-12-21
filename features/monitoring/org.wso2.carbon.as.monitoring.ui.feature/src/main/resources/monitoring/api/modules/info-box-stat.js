@@ -227,7 +227,7 @@ function getInfoBoxErrorStat(conditions) {
         results = results['values'];
         output['total'] = results['SUM_' + HTTP_ERROR_COUNT];
         output['percentage'] = 
-                (results['SUM_' + HTTP_ERROR_COUNT] * 100 / results['SUM_' + HTTP_SUCCESS_COUNT]).toFixed(2) + '\x25';
+                (results['SUM_' + HTTP_ERROR_COUNT] * 100 / (results['SUM_' + HTTP_SUCCESS_COUNT] + results['SUM_' + HTTP_ERROR_COUNT])).toFixed(2) + '\x25';
     } else {
         output['total'] = output['percentage'] = 'N/A';
     }
