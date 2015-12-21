@@ -19,14 +19,16 @@
 
 
 // DAS specific constants
-var AUTHORIZATION_HEADER = "authorizationHeader";
-var DAS_SERVICE_URL = "DASServiceUrl";
-var DAS_USERNAME = "DASUsername";
-var DAS_PASSWORD = "DASPassword";
+var AUTHORIZATION_HEADER = 'authorizationHeader';
+var DAS_SERVICE_URL = 'DASServiceUrl';
+var DAS_USERNAME = 'DASUsername';
+var DAS_PASSWORD = 'DASPassword';
+var DAS_TABLES = 'availableTables';
 
 // DAS REST API specific constants
-var AGGREGATE_RESOURCE = "aggregates";
-var TABLE_RESOURCE = "tables";
+var AGGREGATE_RESOURCE = 'aggregates';
+var TABLE_RESOURCE = 'tables';
+var TABLE_EXISTS_RESOURCE = 'table_exists';
 
 // table names
 var REQUEST_SUMMARY_TABLE = 'MSS_REQUESTS_SUMMARY_PER_MINUTE';

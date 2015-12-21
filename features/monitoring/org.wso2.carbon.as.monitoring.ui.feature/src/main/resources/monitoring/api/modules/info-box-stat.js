@@ -188,8 +188,9 @@ function getInfoBoxSessionStat(conditions) {
         }
     ]);
 
-    results = JSON.parse(results)[0];
-
+    if (results != null) {
+        results = JSON.parse(results)[0];
+    }
     output['title'] = 'Session';
 
     if (results != null && results['values']['SUM_' + SESSION_COUNT] != null) {
